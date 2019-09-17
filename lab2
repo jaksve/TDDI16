@@ -1,0 +1,92 @@
+#include <iostream>
+#include <chrono>
+#include <map>
+#include <vector>
+#include"key.h"
+struct s_s
+{
+    s_s(Key const t[N])
+    {
+        for(int i=0;i<N;++i)
+        {
+            table[i]=t[i];
+        }
+    };
+    Key table[N];
+    Key operator()(Key const& k) const noexcept
+    {
+        return subset_sum(k,table);
+    }
+};
+using namespace std;
+int main(int argc, char* argv[]) {
+    if (argc != 2)
+    {cout<<"Usage: "<<endl;
+    cout<<argv[0]<<" <hashed password> <rand8.txt"<<endl;
+    return 1;
+    }
+
+    Key hashed{argv[1]};
+
+    Key table[N];
+
+    for(int i = 0;i < N;++i)
+    {
+        char buffer[C+1];
+        if(scanf("%s",buffer) != 1)
+        {
+            cerr<<"Too short table!"<<endl;
+            return 1;
+        }
+        table[i]=Key{buffer};
+    }
+   // cout<<"startar..."<<endl;
+    auto begin = chrono::high_resolution_clock::now();
+
+    /***********************************/
+    //subset_sum (Pa,table) == hashed - subset_sum(Pb,table)
+    //mittpunkt = (umber of characters in password /2 ) * number of bits per character
+    unsigned m = (C/2)*B;
+    //map Pa som ska innehålla alla hashningar ["aaaaa" , "aabaa"[
+    map<Key,vector<Key>> Pa{};
+
+    for(Key i {"aaaaa"};i<"aabaa";++i)
+    {
+        auto hash =subset_sum (i,table);
+        Pa[hash].push_back(i);
+
+    }
+
+
+    //map Pb som ska innehålla alla hashningar ["aaaaa" ,555aa]
+    map<Key,vector<Key>>Pb{};
+    for(Key i{"aabaa"};i>"aaaaa";i+=Key{"aabaa"})
+    {
+        auto hash =subset_sum (i,table);
+            Pb[hash].push_back(i);// = i;
+    }
+
+
+    //för alla Pi : Pb
+    //om (hashed-Pi) finns i Pa är det en möjlig  kandidat till lösenordet. skriv då ut lösenordskandidaten.
+          //  cout<<"Pb size: "<<Pb.size()<<endl;
+    for(auto it : Pb )
+    {
+        auto s = Pa.find(hashed-it.first);
+        if(s != Pa.end())
+        {
+            for(auto h : it.second)
+            {
+                for(auto j : s->second)
+                {cout<<j+h<<endl;}
+            }
+        }
+    }
+    /***********************************/
+    auto end = chrono::high_resolution_clock::now();
+
+    cout << "Decryption took "
+         << std::chrono::duration_cast<chrono::seconds>(end - begin).count()
+         << " seconds." << endl;
+    return 0;
+}

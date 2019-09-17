@@ -40,36 +40,39 @@ int main(int argc, char* argv[]) {
         }
         table[i]=Key{buffer};
     }
-   // cout<<"startar..."<<endl;
+    cout<<"startar..."<<endl;
     auto begin = chrono::high_resolution_clock::now();
 
     /***********************************/
     //subset_sum (Pa,table) == hashed - subset_sum(Pb,table)
-    //mittpunkt = (umber of characters in password /2 ) * number of bits per character
-    unsigned m = (C/2)*B;
+
+    //mittpunkt = (umber of characters in password /2 )
+    unsigned m = (C/2)-1;
     //map Pa som ska innehålla alla hashningar ["aaaaa" , "aabaa"[
     map<Key,vector<Key>> Pa{};
-
-    for(Key i {"aaaaa"};i<"aabaa";++i)
+    Key zero{};
+    Key aabaa {};
+    aabaa.digit[m]=1;
+    cout<<"aabaa: "<<aabaa<<endl;
+    for(Key i {};i<aabaa;++i)
     {
         auto hash =subset_sum (i,table);
         Pa[hash].push_back(i);
-
     }
-
+    cout<<"Pa klar!"<<endl;
 
     //map Pb som ska innehålla alla hashningar ["aaaaa" ,555aa]
     map<Key,vector<Key>>Pb{};
-    for(Key i{"aabaa"};i>"aaaaa";i+=Key{"aabaa"})
+    Pb[subset_sum(Key{},table)].push_back(Key{});//
+    cout<<"startar Pb..."<<endl;
+    for(Key i = aabaa ;i>Key{};i+=aabaa)
     {
         auto hash =subset_sum (i,table);
-            Pb[hash].push_back(i);// = i;
+            Pb[hash].push_back(i);
     }
-
-
+    cout<<"Pb klar! startar lösen search.."<<endl;
     //för alla Pi : Pb
-    //om (hashed-Pi) finns i Pa är det en möjlig  kandidat till lösenordet. skriv då ut lösenordskandidaten.
-          //  cout<<"Pb size: "<<Pb.size()<<endl;
+    //om (hashed-Pi) finns i Pa är det en möjlig  kandidat till lösenordet. skriv då ut lösenordskandidaten
     for(auto it : Pb )
     {
         auto s = Pa.find(hashed-it.first);
